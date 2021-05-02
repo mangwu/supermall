@@ -16,3 +16,23 @@ export const itemListenerMixin = {
     // console.log('mixin');
   }
 }
+
+// 抽离topBack
+import BackTop from "cpns/content/backTop/BackTop";
+
+export const backTopMixin = {
+  components: {
+    BackTop,
+  },
+  data() {
+    return {
+      isShowBT: false
+    }
+  },
+  methods: {
+    backClick() {
+      this.$refs.detailscroll && this.$refs.detailscroll.scrollTo(0, 0, 500)
+      this.$refs.homescroll && this.$refs.homescroll.scrollTo(0, 0, 500)
+    }
+  }
+}

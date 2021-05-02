@@ -42,6 +42,8 @@
 <script>
 import { getHomeMultidata, getHomeGoods } from "network/home";
 import { debounce } from "common/utils/utils";
+import { backTopMixin } from "common/mixin/mixin";
+
 
 import NavBar from "cpns/common/navbar/NavBar";
 import Carrousel from "cpns/common/swiper/Carrousel";
@@ -65,7 +67,6 @@ export default {
     GoodsList,
     GoodsItem,
     Scroll,
-    BackTop,
   },
   data() {
     return {
@@ -78,7 +79,7 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
-      isShowBT: false,
+      // isShowBT: false,
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0,
@@ -127,6 +128,7 @@ export default {
     // 未激活状态取消监听itemImageLoad
     this.$bus.$off("itemImageLoad", this.homeItemListener);
   },
+  mixins: [backTopMixin],
   // 封装方法
   methods: {
     /*
@@ -151,14 +153,6 @@ export default {
       this.$refs.tabControl.currentIndex = index;
       // 点击时跳转到tabControl顶部
       this.$refs.homescroll.scrollTo(0, -this.tabOffsetTop, 800);
-    },
-    // 向上
-    backClick() {
-      // 拿到scroll组件中的数据
-      // console.log(this.$refs.homescroll);
-      this.$refs.homescroll.scrollTo(0, 0, 800);
-
-      // console.log('click');
     },
     // 滚动条content位置
     contentScroll(pos) {

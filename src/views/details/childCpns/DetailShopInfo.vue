@@ -1,9 +1,11 @@
 <template>
   <div class="shop-info" v-if="Object.keys(shopInfo).length !== 0">
     <div class="shop">
-      <img :src="shopInfo.logo" alt="" srcset="" />
-      <span class="name">{{ shopInfo.name }}</span>
-      <span class="fans">粉丝：{{ shopInfo.fans }}</span>
+      <div>
+        <img :src="shopInfo.logo" alt="" srcset="" />
+      </div>
+      <div class="name">{{ shopInfo.name }}</div>
+      <div class="fans">粉丝：{{ shopInfo.fans }}</div>
     </div>
     <div class="info">
       <div class="base-info">
@@ -63,18 +65,17 @@ export default {
 .shop {
   height: 60px;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
+  margin-bottom: 20px;
 }
-.shop span.name {
-  position: absolute;
-  top: 20px;
-  left: 60px;
+.shop div.name {
   /* font-size: 1.6rem; */
+  color: rgba(50, 50, 50, 1)
 }
-.shop span.fans {
-  position: absolute;
-  top: 20px;
-  left: 160px;
-}
+
 .shop img {
   width: 50px;
   height: 50px;

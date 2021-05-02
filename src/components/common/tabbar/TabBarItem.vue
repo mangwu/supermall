@@ -54,7 +54,7 @@ export default {
         
       // }
       this.$router.replace(this.path).catch(err => err) 
-      console.log(this.$route.path);
+      // console.log(this.$route.path);
       
     }
   },

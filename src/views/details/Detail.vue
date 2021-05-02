@@ -12,7 +12,7 @@
       @bannerImageLoad="bannerImageLoad"
       ref="detailscroll"
       @scrolling="contentScroll"
-      :probeType='3'
+      :probeType="3"
     >
       <detail-swiper :banners="topImages"></detail-swiper>
       <detail-base-info :goods="goodsInfo"></detail-base-info>
@@ -31,6 +31,12 @@
       ></detail-comment>
       <goods-list :goods="recommend" ref="recommend"></goods-list>
     </scroll>
+    <!-- native修饰符，监听组件的原生事件 -->
+    <back-top @click.native="backClick" v-show="isShowBT"></back-top>
+    <detail-tab-bar @addToCart="addToCart"></detail-tab-bar>
+    
+    <!-- toast的局部封装 -->
+    <!-- <toast :message="toastMessage" :show="toastShow"></toast> -->
   </div>
 </template>
 
@@ -42,7 +48,7 @@ import DetailShopInfo from "./childCpns/DetailShopInfo";
 import DetailInfo from "./childCpns/DetailInfo";
 import DetailParams from "./childCpns/DetailParams";
 import DetailComment from "./childCpns/DetailComment";
-import GoodsList from "cpns/content/goods/GoodsList";
+import DetailTabBar from "./childCpns/DetailTabBar";
 
 import {
   getDetail,
@@ -52,9 +58,15 @@ import {
   getRecommend,
 } from "@/network/detail";
 import { debounce } from "common/utils/utils";
-import { itemListenerMixin } from "common/mixin/mixin";
+import { itemListenerMixin, backTopMixin } from "common/mixin/mixin";
 
 import Scroll from "cpns/common/scroll/Scroll";
+import GoodsList from "cpns/content/goods/GoodsList";
+// toast的局部封装
+// import Toast from "cpns/common/toast/Toast"
+
+// 导入vuex中的actions
+import { mapActions } from "vuex"
 
 export default {
   name: "Detail",
@@ -68,6 +80,9 @@ export default {
     DetailParams,
     DetailComment,
     GoodsList,
+    DetailTabBar,
+    // toast的局部封装
+    // Toast,
   },
   data() {
     return {
@@ -82,6 +97,9 @@ export default {
       imgListener: null,
       themeTopYs: [],
       offsetTop: 0,
+      // toast的局部封装
+      // toastMessage: '',
+      // toastShow: false
     };
   },
   created() {
@@ -127,60 +145,98 @@ export default {
     // 8. 更新页面control offsetTop
 
     // 渲染回调函数，等到渲染完后再获取offsetTop
-    this.$nextTick(() => {
-      
-    });
+    // this.$nextTick(() => {});
   },
   methods: {
-    // 更新offsetTop 
+    // 映射vuex中的actions
+    ...mapActions(['addCart']),
+    // 更新offsetTop
     updateOffsetTop() {
       // 空一次，防止多次更新修改数组
       this.themeTopYs = [];
       // this.$refs.itemParams.$el.offsetTop
       this.themeTopYs.push(0);
       // console.log(this.$refs.itemParams.$el.offsetTop);
-      this.$refs.itemParams && this.themeTopYs.push(this.$refs.itemParams.$el.offsetTop - 44);
-      this.$refs.comment && this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44);
-      this.$refs.recommend && this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44);
-      console.log(this.themeTopYs);
+      this.$refs.itemParams &&
+        this.themeTopYs.push(this.$refs.itemParams.$el.offsetTop - 44);
+      this.$refs.comment &&
+        this.themeTopYs.push(this.$refs.comment.$el.offsetTop - 44);
+      this.$refs.recommend &&
+        this.themeTopYs.push(this.$refs.recommend.$el.offsetTop - 44);
+      // console.log(this.themeTopYs);
     },
     goodItemClick() {
       console.log("iid");
     },
     bannerImageLoad() {
       this.$refs.detailscroll.refresh();
-      this.updateOffsetTop()
+      this.updateOffsetTop();
     },
     imageLoad() {
       this.$refs.detailscroll.refresh();
-      this.updateOffsetTop()
+      this.updateOffsetTop();
     },
     titleClick(index) {
       // console.log(index);
       // 滚动到指定位置
-      this.$refs.detailscroll.scrollTo(0, -(this.themeTopYs[index]), 300);
+      this.$refs.detailscroll.scrollTo(0, -this.themeTopYs[index], 300);
     },
     contentScroll(pos) {
       // console.log(pos);
-      this.offsetTop = -pos.y
+      this.offsetTop = -pos.y;
       if (-pos.y >= this.themeTopYs[0]) {
-        this.$refs.detailnavbar.currentIndex = 0
+        this.$refs.detailnavbar.currentIndex = 0;
       }
       if (-pos.y >= this.themeTopYs[1]) {
-        this.$refs.detailnavbar.currentIndex = 1
+        this.$refs.detailnavbar.currentIndex = 1;
       }
       if (-pos.y >= this.themeTopYs[2]) {
-        this.$refs.detailnavbar.currentIndex = 2
+        this.$refs.detailnavbar.currentIndex = 2;
       }
       if (-pos.y >= this.themeTopYs[3]) {
-        this.$refs.detailnavbar.currentIndex = 3
+        this.$refs.detailnavbar.currentIndex = 3;
       }
-      
-    }
 
+      this.isShowBT = -pos.y > 1500
+    },
+    // 添加购物车
+    addToCart() {
+      // console.log('detail-购物车');
+      // 加入到购物车，传递购物车商品信息
+      // 1. 图片 标题 描述 价格
+      const product = {}
+      product.image = this.topImages[0]
+      product.title = this.goodsInfo.title
+      product.desc = this. goodsInfo.desc
+      product.price = this.goodsInfo.realPrice
+      product.count = 1
+      // 商品的唯一标示
+      product.iid = this.iid
+
+      // 2. 将商品添加到购物车，利用Vuex (中央事件总线不好操作)
+      //  vuex作为一个临时存放且共享的地方可以很好添加商品
+      // 2.1 通过mutation添加
+      // this.$store.commit('addCart', product)
+      // 2.2 间接调用
+      // actions this.$store.dispatch('addCart', product).then(res => console.log(res))
+      // 2.3 通过映射直接调用
+      this.addCart(product).then(res => {
+        console.log(res);
+        // // toast的局部封装
+        // this.toastMessage = res
+        // this.toastShow = true
+
+        // // 消失
+        // setTimeout(() => {
+        //   this.toastShow = false
+        //   this.toastMessage = ''
+        // }, 1500)
+      })
+    }
+    
   },
   activated() {},
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   mounted() {
     // 通过minxins混入
   },
@@ -201,7 +257,7 @@ export default {
 }
 
 .content {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 49px);
   overflow: hidden;
 }
 .detail-nav {
