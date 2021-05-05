@@ -34,6 +34,13 @@ export default {
     return state.cartList.filter(item => {
       return item.checked
     }).length === state.cartList.length && (state.cartList.length !== 0)
+  },
+  // 是否有选中商品
+  hasNoItem(state) {
+    return state.cartList.filter(item => {
+      return !item.checked
+    }).length === state.cartList.length
   }
+  
 
 }

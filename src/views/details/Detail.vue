@@ -221,7 +221,7 @@ export default {
       // actions this.$store.dispatch('addCart', product).then(res => console.log(res))
       // 2.3 通过映射直接调用
       this.addCart(product).then(res => {
-        console.log(res);
+        // console.log(res);
         // // toast的局部封装
         // this.toastMessage = res
         // this.toastShow = true
@@ -231,6 +231,8 @@ export default {
         //   this.toastShow = false
         //   this.toastMessage = ''
         // }, 1500)
+        // console.log(this.$toast);
+        this.$toast.show(res, 2000)
       })
     }
     

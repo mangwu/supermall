@@ -9,7 +9,7 @@
       <span class="check-text">全选</span>
     </div>
     <div class="total-price">合计：￥ {{ totalPrice }}</div>
-    <div class="calculate">去计算({{ checkedLength }})</div>
+    <div class="calculate" @click='calcClick'>去计算({{ checkedLength }})</div>
   </div>
 </template>
 
@@ -27,6 +27,7 @@ export default {
       totalPrice: "totalPrice",
       checkedLength: "checkedLength",
       checkedAll: "checkedAll",
+      hasNoItem: 'hasNoItem'
     }),
   },
   methods: {
@@ -38,6 +39,16 @@ export default {
         this.$bus.$emit('checkedChange');
       }
     },
+    calcClick() {
+      if (this.$store.state.cartList.length == 0) {
+        this.$toast.show('您的购物栏没有商品')
+      } else if (this.hasNoItem) {
+        this.$toast.show('请至少选中一项商品')
+      } else {
+        // this.$toast.show('')
+        console.log('计算');
+      }
+    }
   },
 };
 </script>
